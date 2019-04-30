@@ -77,8 +77,12 @@ if __name__ == '__main__':
     test_data = df.loc[train:,]
     test_data['prediction'] = pd.Series([None for i in range(df.shape[0])])
 
-    # result = knn(train_data.loc[:500,], test_data.loc[train:train+500,], 15)
-    result = knn(train_data, test_data, 15)
+    # result = knn(train_data.loc[:10000,], test_data.loc[train:train+100,], 21)
+    result = knn(train_data, test_data, 21)
 
     acc = accuracy(result[['result', 'prediction']])
-    print(acc)
+
+    f = open('accuracy.txt', 'w')
+    f.write('Accuracy = %s'%str(acc))
+    f.close()
+    # print(acc)
