@@ -178,6 +178,13 @@ if __name__ == '__main__':
     f.write('Accuracy = %s'%str(acc))
     f.close()
 
+    from sklearn.metrics import confusion_matrix
+    cm = confusion_matrix(result['result'], result['prediction'])
+    
+    f = open('accuracy2.txt', 'a')
+    f.write(str(cm))
+    f.close()
+
     
     #For experimental run, end comment here
 
