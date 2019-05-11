@@ -115,6 +115,56 @@ def recordResult(acc, i, j, k, m):
 
     f.close()
 
+def runAlgo(k, norm, frac, df):
+    # Executes algorithm for given parameters
+    train = int(0.65 * df.shape[0] / frac) 
+    train_data = df.loc[:train,]
+
+    if frac > 1:
+        test = train*1.5
+        test_data = df.loc[train:test,] 
+
+    else:
+        test_data = df.loc[train:]
+
+
+    print
+    print('ignore this warnning')
+    print
+
+    test_data['prediction'] = pd.Series([None for i in range(df.shape[0])])
+
+    print
+    print
+
+    result = knn(train_data, test_data, k, norm)
+
+    acc = accuracy(result[['result', 'prediction']])
+
+    print
+
+    print 'Run finished, accuracy is: ', acc
+    print('The result has been saved in accuracy.txt')
+
+
+    f = open('accuracy.txt', 'a')
+    f.write('Accuracy = %s'%str(acc))
+    f.write('\n')
+    f.close()
+
+
+    from sklearn.metrics import confusion_matrix
+    cm = confusion_matrix(result['result'], result['prediction'])
+
+    f = open('accuracy2.txt', 'a')
+    f.write(str(cm))
+    f.write('\n')
+    f.close()
+    print('Confusion matrix is recorded at accuracy2.txt')
+    print
+
+
+
 
 
 
@@ -155,44 +205,39 @@ if __name__ == '__main__':
     df['hours-per-week'] = pd.Series([(x - mu) / sig for x in df['hours-per-week']])
 
     #For experimental run, start comment here
+    print 
+    print('Chose an odd value of k(11 is recommended)')
+    k = int(input())
+    print 
+    print('Chose a norm out of the following:(5 is recommended)')
+    print 
+    print('1 - Manhattan Distance')
+    print('2 - Euclidean Distance')
+    print('3 - l4 Distance')
+    print('4 - Experimental norm #1')
+    print('5 - Experimental norm #2')
+    print 
+    norm = int(input()) -1
 
-
-    #train = int(0.65 * df.shape[0]) #takes roughly 30 hours
-
-
-    train = int(0.5 * df.shape[0]) #takes roughly 4 hours -- divide by 20 for quicker run
-    test = train*1.5
-
-    train_data = df.loc[:train,]
-    #test_data = df.loc[train:test,] #For shorter experiment uncomment this
-    test_data = df.loc[train:] #For shorter experiment comment this
-    test_data['prediction'] = pd.Series([None for i in range(df.shape[0])])
-
-    # result = knn(train_data.loc[:10000,], test_data.loc[train:train+100,], 21)
-    result = knn(train_data, test_data, 11, 4)
-
-    acc = accuracy(result[['result', 'prediction']])
-
-
-    f = open('accuracy.txt', 'a')
-    f.write('Accuracy = %s'%str(acc))
-    f.close()
-
-    from sklearn.metrics import confusion_matrix
-    cm = confusion_matrix(result['result'], result['prediction'])
-    
-    f = open('accuracy2.txt', 'a')
-    f.write(str(cm))
-    f.close()
+    print 
+    print('What fraction of observations do you want to consider?(integer)')
+    print('1 means all data, 10 means a tenth of the data, so on(50 is recommended, this takes a while)')
+    print 
+    frac = int(input())
 
     
-    #For experimental run, end comment here
+
+    runAlgo(k, norm, frac, df)
+
 
 
     '''
+
+
+    
     #EXPERIMENTAL RUN - roughly 10 seconds per iteration, total running time of about 10 hours
     
-    #Uncomment this batch to run the experimental run, make sure to comment the code above and the code below
+    #Uncomment this batch to run the experimental run, make sure to comment the code above
     #
 
     for l in range(0, 9):
@@ -232,4 +277,3 @@ if __name__ == '__main__':
                 acc = accuracy(result[['result', 'prediction']])
                 recordResult(acc, l, j, k, m)
     '''
-
