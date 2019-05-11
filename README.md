@@ -1,6 +1,6 @@
 # 542FinalProject
 
-Team Money - Ibrahim Shaikh, Filip Vukelic, Alexander Schwartzman
+Team Money - Ibrahim Shaikh (U37935300) , Filip Vukelic (U82894865), Alexander Schwartzman (U34909050)
 
 This algorithm depends on the following packages installed:
 
