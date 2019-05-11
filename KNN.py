@@ -7,14 +7,14 @@ from tqdm import tqdm
 #All running times are reported for MacBook air i5 1.3GHz with two cores
 
 
-def knn(train_data, test_data, k, norm):
+def knn(train_data, test_data, k, metric):
     for index, row_x in tqdm(test_data.iterrows(), total=test_data.shape[0]):
         # neighbors list
         neighbors = []
 
         # loop through every row in training to find neighbors
         for i, row_y in train_data.iterrows():
-            l2 = metric(row_x, row_y, norm)
+            l2 = metric(row_x, row_y, metric)
             neighbors.append((row_y, l2))
 
         k_nearest = sorted(neighbors, key=lambda tup: tup[1])[:k]
@@ -23,22 +23,22 @@ def knn(train_data, test_data, k, norm):
         test_data.at[index, 'prediction'] = (' <=50K' if positive_count > k//2 else ' >50K')
     return test_data
 
-def metric(row_x, row_y, norm):
-    # returns the distance between two points in different norms
-    if norm == 0:
+def metric(row_x, row_y, metric):
+    # returns the distance between two points in different metrics
+    if metric == 0:
         return l1_distance(row_x, row_y)
-    elif norm == 1:
+    elif metric == 1:
         return l2_distance(row_x, row_y)
-    elif norm == 2:
+    elif metric == 2:
         return l4_distance(row_x, row_y)
-    elif norm == 3:
+    elif metric == 3:
         return wack_distance(row_x, row_y)
     else:
         return wacker_distance(row_x, row_y)
 
 
 def l1_distance(row_x, row_y):
-    # Manhattan norm: sum of |x_1 - x_2|
+    # Manhattan metric: sum of |x_1 - x_2|
     s=0
     for i in range(len(row_y)):
         if isinstance(row_x[i], str):   # if the values are str, the distance is 0 if same, and 1 if different
@@ -48,7 +48,7 @@ def l1_distance(row_x, row_y):
     return s
 
 def l2_distance(row_x, row_y):
-    # Euclidean norm: sqrt of sum of square differences
+    # Euclidean metric: sqrt of sum of square differences
     s = 0
     for i in range(len(row_y)):
         if isinstance(row_x[i], str):   # if the values are str, the distance is 0 if same, and 1 if different
@@ -58,7 +58,7 @@ def l2_distance(row_x, row_y):
     return math.sqrt(s)
 
 def l4_distance(row_x, row_y):
-    # lp norm where p=4: same as Euclidean, to the power of 4
+    # lp metric where p=4: same as Euclidean, to the power of 4
     s = 0
     for i in range(len(row_y)):
         if isinstance(row_x[i], str):   # if the values are str, the distance is 0 if same, and 1 if different
@@ -103,7 +103,7 @@ def accuracy(df):
 
 def recordResult(acc, i, j, k, m):
     #Write experimental results into 'accuracy.txt' file, for experimental use
-    output = "Accuracy for attempt:(" +  str(i) + "," + str(j) + ") with k: " + str(k) + " and norm: " + str(m) + " is: " + str(acc)
+    output = "Accuracy for attempt:(" +  str(i) + "," + str(j) + ") with k: " + str(k) + " and metric: " + str(m) + " is: " + str(acc)
     print(output)
     f = open('accuracy.txt', 'a')
     f.write('%s'%str(output))
@@ -115,7 +115,7 @@ def recordResult(acc, i, j, k, m):
 
     f.close()
 
-def runAlgo(k, norm, frac, df):
+def runAlgo(k, metric, frac, df):
     # Executes algorithm for given parameters
     train = int(0.65 * df.shape[0] / frac) 
     train_data = df.loc[:train,]
@@ -137,7 +137,7 @@ def runAlgo(k, norm, frac, df):
     print
     print
 
-    result = knn(train_data, test_data, k, norm)
+    result = knn(train_data, test_data, k, metric)
 
     acc = accuracy(result[['result', 'prediction']])
 
@@ -209,15 +209,15 @@ if __name__ == '__main__':
     print('Chose an odd value of k(11 is recommended)')
     k = int(input())
     print 
-    print('Chose a norm out of the following:(5 is recommended)')
+    print('Chose a metric out of the following:(5 is recommended)')
     print 
     print('1 - Manhattan Distance')
     print('2 - Euclidean Distance')
     print('3 - l4 Distance')
-    print('4 - Experimental norm #1')
-    print('5 - Experimental norm #2')
+    print('4 - Experimental metric #1')
+    print('5 - Experimental metric #2')
     print 
-    norm = int(input()) -1
+    metric = int(input()) -1
 
     print 
     print('What fraction of observations do you want to consider?(integer)')
@@ -227,7 +227,7 @@ if __name__ == '__main__':
 
     
 
-    runAlgo(k, norm, frac, df)
+    runAlgo(k, metric, frac, df)
 
 
 
