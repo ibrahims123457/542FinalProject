@@ -15,4 +15,6 @@ Before running this algorithm, make sure its in the same directory as the file '
 
 
 
-To run this algorithm, simply execute the file and follow the prompts.
+To run this algorithm, simply execute the file 'KNN.py' and follow the prompts.
+
+Please make sure to input only integers, the algorithm is NOT build to withstand faulty input.
