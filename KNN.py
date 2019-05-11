@@ -14,7 +14,7 @@ def knn(train_data, test_data, k, metric):
 
         # loop through every row in training to find neighbors
         for i, row_y in train_data.iterrows():
-            l2 = metric(row_x, row_y, metric)
+            l2 = metrics(row_x, row_y, metric)
             neighbors.append((row_y, l2))
 
         k_nearest = sorted(neighbors, key=lambda tup: tup[1])[:k]
@@ -23,7 +23,7 @@ def knn(train_data, test_data, k, metric):
         test_data.at[index, 'prediction'] = (' <=50K' if positive_count > k//2 else ' >50K')
     return test_data
 
-def metric(row_x, row_y, metric):
+def metrics(row_x, row_y, metric):
     # returns the distance between two points in different metrics
     if metric == 0:
         return l1_distance(row_x, row_y)
@@ -115,6 +115,45 @@ def recordResult(acc, i, j, k, m):
 
     f.close()
 
+
+
+
+def normalize(df):
+    #Z-Score normalization for appropriate variables
+    to_normalize = ['age', 'fnlwgt', 'education-num', 'capital-gain', 'capital-loss', 'hours-per-week']
+    for attribute in to_normalize:
+        mu = df[attribute].mean()
+        sig = df[attribute].std()
+        df[attribute] = pd.Series([(x - mu) / sig for x in df[attribute]])
+
+
+def acquire_params():
+    #promtps the user for running parameters
+    print 
+    print('Chose an odd value of k(11 is recommended)')
+    k = int(input())
+    print 
+    print('Chose a metric out of the following:(5 is recommended)')
+    print 
+    print('1 - Manhattan Distance')
+    print('2 - Euclidean Distance')
+    print('3 - l4 Distance')
+    print('4 - Experimental metric #1')
+    print('5 - Experimental metric #2')
+    print 
+    metric = int(input()) -1
+
+    print 
+    print('What fraction of observations do you want to consider?(integer)')
+    print('1 means all data, 10 means a tenth of the data, so on(50 is recommended, this takes a while)')
+    print 
+    frac = int(input())
+
+    params = [k, metric, frac]
+
+    return params
+
+
 def runAlgo(k, metric, frac, df):
     # Executes algorithm for given parameters
     train = int(0.65 * df.shape[0] / frac) 
@@ -174,64 +213,22 @@ if __name__ == '__main__':
 
     df.columns = ['age', 'work-class', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'result']
 
-    # age normalization
-    mu = df['age'].mean()
-    sig = df['age'].std()
-    df['age'] = pd.Series([(x - mu) / sig for x in df['age']])
+    normalize(df) #performs Z-Score normalization
 
-    # fnlwgt normalization
-    mu = df['fnlwgt'].mean()
-    sig = df['fnlwgt'].std()
-    df['fnlwgt'] = pd.Series([(x - mu) / sig for x in df['fnlwgt']])
+    params = acquire_params() #prompts the user for parameters
 
-    # education-num normalization
-    mu = df['education-num'].mean()
-    sig = df['education-num'].std()
-    df['education-num'] = pd.Series([(x - mu) / sig for x in df['education-num']])
+    k = params[0]
+    metric = params[1]
+    frac = params[2]
 
-    # capital-gain normalization
-    mu = df['capital-gain'].mean()
-    sig = df['capital-gain'].std()
-    df['capital-gain'] = pd.Series([(x - mu) / sig for x in df['capital-gain']])
+    runAlgo(k, metric, frac, df) #runs the algorithm and records the results
 
-    # capital-loss normalization
-    mu = df['capital-loss'].mean()
-    sig = df['capital-loss'].std()
-    df['capital-loss'] = pd.Series([(x - mu) / sig for x in df['capital-loss']])
 
-    # hours-per-week normalization
-    mu = df['hours-per-week'].mean()
-    sig = df['hours-per-week'].std()
-    df['hours-per-week'] = pd.Series([(x - mu) / sig for x in df['hours-per-week']])
-
-    #For experimental run, start comment here
-    print 
-    print('Chose an odd value of k(11 is recommended)')
-    k = int(input())
-    print 
-    print('Chose a metric out of the following:(5 is recommended)')
-    print 
-    print('1 - Manhattan Distance')
-    print('2 - Euclidean Distance')
-    print('3 - l4 Distance')
-    print('4 - Experimental metric #1')
-    print('5 - Experimental metric #2')
-    print 
-    metric = int(input()) -1
-
-    print 
-    print('What fraction of observations do you want to consider?(integer)')
-    print('1 means all data, 10 means a tenth of the data, so on(50 is recommended, this takes a while)')
-    print 
-    frac = int(input())
-
-    
-
-    runAlgo(k, metric, frac, df)
 
 
 
     '''
+    #Ignore the code below
 
 
     
